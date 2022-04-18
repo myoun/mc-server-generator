@@ -7,4 +7,6 @@ Minecraft Paper Server Generator
 `deno`
 
 ### Install
-```deno install --unstable --allow-net --allow-write https://raw.githubusercontent.com/myoun/mc-server-generator/master/mcsrvgen.ts```
+```
+deno install --unstable --allow-net --allow-write https://raw.githubusercontent.com/myoun/mc-server-generator/master/mcsrvgen.ts
+```
