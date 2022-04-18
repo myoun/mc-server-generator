@@ -4,7 +4,7 @@ Minecraft Paper Server Generator
 ## How to use?
 
 ### Pre Requirements
-`deno`
+[Deno](https://deno.land/)
 
 ### Install
 ```
