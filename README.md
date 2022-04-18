@@ -11,6 +11,8 @@ Minecraft Paper Server Generator
 deno install --unstable --allow-net --allow-write https://raw.githubusercontent.com/myoun/mc-server-generator/master/mcsrvgen.ts
 ```
 
+then
+
 ```
 mcsrvgen
 ```
