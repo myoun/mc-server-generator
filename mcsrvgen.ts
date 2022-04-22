@@ -9,77 +9,83 @@ console.log(
     colors.underline.bold.yellow("Made by Myoun")
 )
 
-const apiServer = "https://papermc.io/api"
+async function process() {
+    const apiServer = "https://papermc.io/api"
 
-const versionResult = await fetch(`${apiServer}/v2/projects/paper`)
+    const versionResult = await fetch(`${apiServer}/v2/projects/paper`)
 
-const versions = await versionResult.json().then((versionResponse) => { 
-    return (versionResponse.versions as Array<string>).reverse()
-})
+    const versions = await versionResult.json().then((versionResponse) => { 
+        return (versionResponse.versions as Array<string>).reverse()
+    })
 
 
-const version: string = await Select.prompt({
-    message : "Choose the version",
-    options : versions
-})
+    const version: string = await Select.prompt({
+        message : "Choose the version",
+        options : versions
+    })
 
-const buildResult = await fetch(`${apiServer}/v2/projects/paper/versions/${version}`)
+    const buildResult = await fetch(`${apiServer}/v2/projects/paper/versions/${version}`)
 
-const builds = await buildResult.json().then((buildResponse) => {
-    return (buildResponse.builds as Array<number>).reverse().map((it) => it.toString())
-})
+    const builds = await buildResult.json().then((buildResponse) => {
+        return (buildResponse.builds as Array<number>).reverse().map((it) => it.toString())
+    })
 
-const build: string = await Select.prompt({
-    message : "Choose the build",
-    options : builds
-})
+    const build: string = await Select.prompt({
+        message : "Choose the build",
+        options : builds
+    })
 
-const downloadNameResult = await fetch(`${apiServer}/v2/projects/paper/versions/${version}/builds/${build}`)
+    const downloadNameResult = await fetch(`${apiServer}/v2/projects/paper/versions/${version}/builds/${build}`)
 
-const downloadName = await downloadNameResult.json().then((downloadUrlResponse) => {
-    return (downloadUrlResponse.downloads.application.name as string)
-})
+    const downloadName = await downloadNameResult.json().then((downloadUrlResponse) => {
+        return (downloadUrlResponse.downloads.application.name as string)
+    })
 
-const downloadUrl = `${apiServer}/v2/projects/paper/versions/${version}/builds/${build}/downloads/${downloadName}`
+    const downloadUrl = `${apiServer}/v2/projects/paper/versions/${version}/builds/${build}/downloads/${downloadName}`
 
-const res = await fetch(downloadUrl);
-const file = await Deno.open(`./${downloadName}`, { create : true, write : true })
+    const res = await fetch(downloadUrl);
+    const file = await Deno.open(`./${downloadName}`, { create : true, write : true })
 
-const reader = readerFromStreamReader(res.body!.getReader())
+    const reader = readerFromStreamReader(res.body!.getReader())
 
-await copy(reader, file)
+    await copy(reader, file)
 
-file.close()
+    file.close()
 
-const isEula : boolean = await Confirm.prompt("Generate eula.txt?")
+    const isEula : boolean = await Confirm.prompt("Generate eula.txt?")
 
-if (isEula) Deno.writeTextFile("./eula.txt", "eula=true")
+    if (isEula) Deno.writeTextFile("./eula.txt", "eula=true")
 
-const canAddOps : boolean = await Confirm.prompt("Do you want to add Op?")
+    const canAddOps : boolean = await Confirm.prompt("Do you want to add Op?")
 
-if (canAddOps) {
-    const mojangApi = "https://api.mojang.com/users/profiles/minecraft"
-    
-    const ops = await List.prompt("Enter some usernames");
+    if (canAddOps) {
+        const mojangApi = "https://api.mojang.com/users/profiles/minecraft"
+        
+        const ops = await List.prompt("Enter some usernames");
 
-    const opsWithUuid : Array<any> = []
+        const opsWithUuid : Array<any> = []
 
-    for (const username of ops) {
-        opsWithUuid.push(
-            await fetch(`${mojangApi}/${username}`)
-                .then((res) => {{
-                    return res.json()
-                }})
-        )
+        for (const username of ops) {
+            opsWithUuid.push(
+                await fetch(`${mojangApi}/${username}`)
+                    .then((res) => {{
+                        return res.json()
+                    }})
+            )
+        }
+
+        const finalOpPlayers = `[${opsWithUuid.map((op) => (JSON.stringify({
+            uuid : op.id,
+            name : op.name,
+            level : 4,
+            bypassesPlayerLimit : false
+        }))).toString()}]`
+
+        
+        Deno.writeTextFile("./ops.json", finalOpPlayers)    
     }
-
-    const finalOpPlayers = `[${opsWithUuid.map((op) => (JSON.stringify({
-        uuid : op.id,
-        name : op.name,
-        level : 4,
-        bypassesPlayerLimit : false
-    }))).toString()}]`
-
-    
-    Deno.writeTextFile("./ops.json", finalOpPlayers)    
 }
+
+await process()
+
+export default process
