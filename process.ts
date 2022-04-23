@@ -101,7 +101,7 @@ export async function process() {
         }))).toString()}]`
 
         
-        Deno.writeTextFile("./whitelist.json", finalOpPlayers)
+        Deno.writeTextFile("./whitelist.json", finalWhitelistPlayers)
         Deno.writeTextFile("./server.properties", "white-list=true")
     }
 }
