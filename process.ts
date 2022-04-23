@@ -76,4 +76,32 @@ export async function process() {
         
         Deno.writeTextFile("./ops.json", finalOpPlayers)    
     }
+    
+    const canAddWhitelist : boolean = await Confirm.prompt("Do you want to add white list?")
+    
+    if (canAddWhitelist) {
+        const mojangApi = "https://api.mojang.com/users/profiles/minecraft"
+        
+        const ops = await List.prompt("Enter some usernames");
+
+        const whitelistWithUuid : Array<any> = []
+
+        for (const username of ops) {
+            whitelistWithUuid.push(
+                await fetch(`${mojangApi}/${username}`)
+                    .then((res) => {{
+                        return res.json()
+                    }})
+            )
+        }
+
+        const finalWhitelistPlayers = `[${whitelistWithUuid.map((op) => (JSON.stringify({
+            uuid : op.id,
+            name : op.name
+        }))).toString()}]`
+
+        
+        Deno.writeTextFile("./whitelist.json", finalOpPlayers)
+        Deno.writeTextFile("./server.properties", "white-list=true")
+    }
 }
