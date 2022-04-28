@@ -2,7 +2,7 @@ import { Select, Confirm, List } from "https://arweave.net/b4K9toBc51LZoKzXnXVFa
 import { readerFromStreamReader, copy } from "https://deno.land/std@0.135.0/streams/conversion.ts";
 
 function addDashesToUuid(nonDash : string) {
-    return nonDash.substring(0,8) + '-' + nonDash.substring(8,4) + '-' + nonDash.substring(12,4) + '-' + nonDash.substring(16,4) + '-' + nonDash.substring(20)
+    return nonDash.substring(0, 8) + '-' + nonDash.substring(8, 8 + 4) + '-' + nonDash.substring(12, 12 + 4) + '-' + nonDash.substring(16, 16 + 4) + '-' + nonDash.substring(16 + 4, 20)
 }
 
 export async function process() {
