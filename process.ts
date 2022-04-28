@@ -1,6 +1,10 @@
 import { Select, Confirm, List } from "https://arweave.net/b4K9toBc51LZoKzXnXVFaz9TZaQKTIWPCl45yxgU8sc/mod.ts";
 import { readerFromStreamReader, copy } from "https://deno.land/std@0.135.0/streams/conversion.ts";
 
+function addDashesToUuid(nonDash : string) {
+    return nonDash.substr(0,8) + '-' + nonDash.substr(8,4) + '-' + nonDash.substr(12,4) + '-' + nonDash.substr(16,4) + '-' + nonDash.substr(20)
+}
+
 export async function process() {
     const apiServer = "https://papermc.io/api"
 
@@ -67,7 +71,7 @@ export async function process() {
         }
 
         const finalOpPlayers = `[${opsWithUuid.map((op) => (JSON.stringify({
-            uuid : op.id,
+            uuid : addDashesToUuid(op.id),
             name : op.name,
             level : 4,
             bypassesPlayerLimit : false
@@ -96,7 +100,7 @@ export async function process() {
         }
 
         const finalWhitelistPlayers = `[${whitelistWithUuid.map((op) => (JSON.stringify({
-            uuid : op.id,
+            uuid : addDashesToUuid(op.id),
             name : op.name
         }))).toString()}]`
 
