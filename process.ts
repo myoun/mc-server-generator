@@ -1,6 +1,10 @@
 import { Select, Confirm, List } from "https://arweave.net/b4K9toBc51LZoKzXnXVFaz9TZaQKTIWPCl45yxgU8sc/mod.ts";
 import { readerFromStreamReader, copy } from "https://deno.land/std@0.135.0/streams/conversion.ts";
 
+function addDashesToUuid(nonDash : string) {
+    return nonDash.substring(0, 8) + '-' + nonDash.substring(8, 8 + 4) + '-' + nonDash.substring(12, 12 + 4) + '-' + nonDash.substring(16, 16 + 4) + '-' + nonDash.substring(20, nonDash.length)
+}
+
 export async function process() {
     const apiServer = "https://papermc.io/api"
 
@@ -67,7 +71,7 @@ export async function process() {
         }
 
         const finalOpPlayers = `[${opsWithUuid.map((op) => (JSON.stringify({
-            uuid : op.id,
+            uuid : addDashesToUuid(op.id),
             name : op.name,
             level : 4,
             bypassesPlayerLimit : false
@@ -75,5 +79,33 @@ export async function process() {
 
         
         Deno.writeTextFile("./ops.json", finalOpPlayers)    
+    }
+    
+    const canAddWhitelist : boolean = await Confirm.prompt("Do you want to add white list?")
+    
+    if (canAddWhitelist) {
+        const mojangApi = "https://api.mojang.com/users/profiles/minecraft"
+        
+        const ops = await List.prompt("Enter some usernames");
+
+        const whitelistWithUuid : Array<any> = []
+
+        for (const username of ops) {
+            whitelistWithUuid.push(
+                await fetch(`${mojangApi}/${username}`)
+                    .then((res) => {{
+                        return res.json()
+                    }})
+            )
+        }
+
+        const finalWhitelistPlayers = `[${whitelistWithUuid.map((op) => (JSON.stringify({
+            uuid : addDashesToUuid(op.id),
+            name : op.name
+        }))).toString()}]`
+
+        
+        Deno.writeTextFile("./whitelist.json", finalWhitelistPlayers)
+        Deno.writeTextFile("./server.properties", "white-list=true")
     }
 }
